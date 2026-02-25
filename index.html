@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SINAV 8 - Anında Geri Bildirim</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 20px;
+            padding: 20px;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+            border-radius: 10px;
+            background-color: white;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #2980b9;
+            margin-top: 30px;
+            border-left: 5px solid #3498db;
+            padding-left: 15px;
+        }
+        h3 {
+            color: #34495e;
+            margin-top: 25px;
+            font-style: italic;
+        }
+        .reading-text {
+            background-color: #ecf0f1;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-size: 0.95em;
+            border-left: 4px solid #7f8c8d;
+        }
+        .question-block {
+            background-color: #f9f9f9;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+            border: 1px solid #d5d8dc;
+            position: relative;
+        }
+        .question-number {
+            font-weight: bold;
+            color: #e67e22;
+            font-size: 1.1em;
+        }
+        .question-text {
+            margin: 10px 0;
+            font-size: 1.05em;
+        }
+        .options {
+            list-style: none;
+            padding: 0;
+        }
+        .options li {
+            margin: 8px 0;
+        }
+        input[type="radio"] {
+            margin-right: 10px;
+            cursor: pointer;
+        }
+        .feedback {
+            margin-top: 10px;
+            padding: 8px;
+            border-radius: 5px;
+            font-weight: bold;
+            display: none;
+        }
+        .correct-feedback {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .wrong-feedback {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+        .info-note {
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            color: #856404;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 20px 0;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>SINAV 8 - Anında Geri Bildirim</h1>
+    <div class="info-note">
+        ⚡ Her sorunun altından şıkkınızı seçtiğinizde doğru/yanlış bilgisi görünecektir. 
+        Doğru cevaplar örnek amaçlı girilmiştir, dilerseniz kod üzerinde düzenleyebilirsiniz.
+    </div>
+
+    <div id="quiz-container"></div>
+
+    <footer>Not: Doğru cevaplar soru nesnelerindeki "correct" alanıyla belirlenir (0 indeksli).</footer>
+
+    <script>
+        (function() {
+            // Tüm sınav öğeleri (başlık, metin, sorular)
+            const items = [
+                // PART I
+                { type: "heading", content: "PART I: GRAMMAR" },
+                { type: "text", content: "Choose the best alternative to complete the sentences." },
+                { type: "question", number: 1, question: "______ this procedure to find the cause of the vibrations.", options: ["Uses", "Using", "To use", "Use"], correct: 3 }, // Use (D)
+                { type: "question", number: 2, question: "Disconnect the electrical connectors of the normal brake servovalves and connect ______ correctly.", options: ["it", "them", "that", "their"], correct: 1 }, // them
+                { type: "question", number: 3, question: "______ all the applicable lines are highlighted, add all the highlighted figures in each vertical column.", options: ["So", "Because of", "When", "But"], correct: 2 }, // When
+                { type: "question", number: 4, question: "The decision table ______ to help the operator find the possible causes of the vibrations.", options: ["is made", "made", "have made", "was mading"], correct: 0 }, // is made
+                { type: "question", number: 5, question: "______ the airline records the data on this sheet, ______ the trouble shooting will be.", options: ["The accurately / the easiest", "The more accurately / the easier", "More accurate / easy", "The accurateliest / the easiest"], correct: 1 }, // The more accurately / the easier
+                { type: "question", number: 6, question: "The HP ground connection ______ near the engine hazardous area.", options: ["is", "are", "can", "will"], correct: 0 }, // is
+                { type: "question", number: 7, question: "The interphone system ______ the cabin and the cockpit is operative.", options: ["between", "off", "at", "out"], correct: 0 }, // between
+                { type: "question", number: 8, question: "We must visually check the associated door before ______ flight.", options: ["all", "several", "each", "a couple of"], correct: 2 }, // each
+                { type: "question", number: 9, question: "If the APU bleed is not available, a ground cart ______ as long as the pneumatic pipe is kept out of the hazardous area.", options: ["can be used", "would be used", "could have been used", "will have been used"], correct: 0 }, // can be used
+                { type: "question", number: 10, question: "Crew (cockpit and cabin) must be informed that evacuation procedures must not include the inoperative exit; ______, opposite exit may be used.", options: ["in addition", "so", "thus", "however"], correct: 3 }, // however
+
+                // PART II
+                { type: "heading", content: "PART II: VOCABULARY" },
+                { type: "text", content: "Choose the best alternative to complete the sentences." },
+                { type: "question", number: 11, question: "If you find the area ______ with acid or alkali spillage, do the cleaning procedure of the related area.", options: ["performed", "illuminated", "contaminated", "replenished"], correct: 2 }, // contaminated
+                { type: "question", number: 12, question: "N, R or D ______ pages which are New, Revised or Deleted respectively.", options: ["applies", "occurs", "decreases", "indicates"], correct: 3 }, // indicates
+                { type: "question", number: 13, question: "Visually inspect the ______ area for signs of fluid spillage.", options: ["applicable", "retractable", "breakable", "adjustable"], correct: 0 }, // applicable
+                { type: "question", number: 14, question: "Insert the affected pages and ______ the Record of Revisions", options: ["take-off", "complete", "loose", "repeat"], correct: 1 }, // complete
+                { type: "question", number: 15, question: "Do ______ to find the cause of the sewage spillage and do the necessary action.", options: ["a selection", "an oscillation", "an inspection", "an isolation"], correct: 2 }, // an inspection
+                { type: "question", number: 16, question: "______ the torque switch on top of the torque switch mechanism assembly.", options: ["Set", "Cut", "Play", "Drop"], correct: 0 }, // Set
+                { type: "question", number: 17, question: "Turn the actuator assembly so that the electrical connector is toward the ______ end of the airplane.", options: ["dent", "plug", "aft", "chip"], correct: 2 }, // aft
+                { type: "question", number: 18, question: "The HOT AIR pb-sw on the CARGO HEAT overhead panel is ______ to OFF.", options: ["met", "moved", "closed", "set"], correct: 3 }, // set
+                { type: "question", number: 19, question: "The avionics ventilation system is ______ before each flight.", options: ["looked for", "checked", "given", "taken"], correct: 1 }, // checked
+                { type: "question", number: 20, question: "Unequal passengers distribution may cause ______ temperature in the rear cabin.", options: ["practical", "alternative", "high", "superior"], correct: 2 }, // high
+                { type: "question", number: 21, question: "It is ______ that repairs be accomplished at the earliest opportunity.", options: ["important", "portable", "partial", "impossible"], correct: 0 }, // important
+                { type: "question", number: 22, question: "The cockpit handset interphone is used for ______ between the cockpit and the cabin.", options: ["condition", "combination", "correction", "communication"], correct: 3 }, // communication
+                { type: "question", number: 23, question: "The passenger ______ can be heard throughout the cabin during the flight.", options: ["announcement", "arrangement", "adjustment", "engagement"], correct: 0 }, // announcement
+                { type: "question", number: 24, question: "In the case of depressurization at altitudes higher than 37 000 ft (11 200 m), oxygen masks may ______ during the descent.", options: ["take away", "drop down", "put up", "turn down"], correct: 1 }, // drop down
+                { type: "question", number: 25, question: "The avionics skin exchanger inlet bypass valve is ______ secured in the closed position.", options: ["accidentally", "clearly", "manually", "purposefully"], correct: 2 }, // manually
+
+                // PART III
+                { type: "heading", content: "PART III: TRANSLATION" },
+                { type: "text", content: "Choose the best alternative:" },
+                { type: "question", number: 26, question: "You can speak with people in the flight compartment.", options: ["Kokpitteki insanlarla konuşabilirsiniz.", "İnsanlarla yalnızca kokpitte konuşunuz.", "Kokpit insanlarla konuşabileceğiniz bir yerdir.", "İnsanlar kokpitte birbirleriyle konuşabilir."], correct: 0 },
+                { type: "question", number: 27, question: "Engine noise can cause temporary and permanent loss of hearing.", options: ["Motor sesinin yüksek olması geçici olarak işitme kaybına yol açar.", "İşitme kaybı motor çevresinde çalışan insanlarda görülebilir.", "Motor sesi geçici ve kalıcı işitme kaybına neden olabilir.", "Geçici ve kalıcı işitme kaybının en önemli nedeni motor sesidir."], correct: 2 },
+                { type: "question", number: 28, question: "The engine fuel and control system sends the necessary fuel to the engine air system in order to make the operation of the engine efficient and stable.", options: ["Motorun çalışmasını verimli ve düzenli hale getirmek için motor yakıt ve kontrol sistemi gerekli olan yakıtı motor hava sistemine gönderir.", "Motorun verimli ve düzenli çalışması motor yakıt ve kontrol sisteminin motor hava sistemine gerekli olan yakıtı sağlamasıyla gerçekleşir.", "Motorun çalışmasını verimli ve düzeni hale getirme görevi motor yakıt ve kontrol sisteminin görevidir.", "Motor yakıt ve kontrol sistemi gereken yakıtı motor hava sistemine gönderir ve motorun verimli ve düzenli çalışmasını sağlar."], correct: 3 },
+                { type: "question", number: 29, question: "The oil quantity indicating system uses an oil quantity transmitter to measure the oil quantity in the oil tank.", options: ["Yağ tankında kalan yağın miktarının yağ gösterge sistemine iletilebilmesi için yağ miktar transmiteri kullanılmalıdır.", "Yağ miktar transmiteri yağ miktarı gösterge sistemine yağ tankındaki yağ miktarıyla ilgili bilgiler ulaştırır.", "Yağ miktarının ölçümünün yapılabilmesi için yağ göstergelerine yağ tankındaki yağ miktarıyla ilgili bilgi iletilmesi gerekir.", "Yağ miktarı gösterge sistemi yağ tankındaki yağ miktarını ölçmek için bir yağ miktar transmiteri kullanır."], correct: 3 },
+                { type: "question", number: 30, question: "The performance maintenance page also shows the value for these indications.", options: ["Bakım sayfası performans ile ilgili değerleri bu göstergelerde gösterir.", "Performans bakımı sayfası aynı zamanda bu göstergeler için olan değeri gösterir.", "Performans bakımı sayfası bu göstergelere olan değeri ifade eder.", "Bakım sayfası performansı aynı zamanda bu göstergeler için olan değerleri gösterir."], correct: 1 },
+                { type: "question", number: 31, question: "The EEC sends digital speed signals to the AIMS on the systems ARINC 629 buses.", options: ["EEC ARINC 629 veri yollarındaki sistemlerdeki AIMS e dijital hız sinyalleri gönderir.", "Hız sinyalleri EEC tarafından ARINC 629 veri yollarına dijital hız sinyalleri gönderir.", "EEC ARINC 629 veri yollarındaki sistemlerdeki AIMS e dijital hız sinyallerini ulaştırır.", "Hız sinyalleri EEC den AIMS e ARIN 629 veri yolları üzerinden gönderilir."], correct: 2 },
+                { type: "question", number: 32, question: "When you select FLIGHT HISTORY, the MAT shows the N1 VIBRATION FLIGHT HISTORY display.", options: ["Uçuş Geçmişi sizi seçtiğinde, MAT N1 Uçuş Titreşim Geçmişi ekranını gösterir.", "MAT N1 Uçuş Titreşim Geçmişi ekranını gösterdiğinde Uçuş Geçmişi ekranını seçin.", "Uçuş Geçmişini seçtiğinizde, MAT N1 Uçuş Titreşim Geçmişi ekranını gösterilir.", "Uçuş Geçmişini seçtiğinizde, MAT N1 Uçuş Titreşim Geçmişi ekranını gösterir."], correct: 3 },
+                { type: "question", number: 33, question: "Maximum N1 is the highest rotor speed that will not cause the engine to exceed maximum rated thrust.", options: ["Maksimum N1 motorun maksimum nominal hızı aşmasına sebep olmayacak en yüksek rotor hızıdır.", "En yüksek hız olan Maksimum N1 motorun aşınmasına sebep olmaz.", "Maksimum N1 motor maksimum nominal hızının aşılmasına sebep olmayabilecek rotor hızıdır.", "En yüksek hız olan Maksimum N1 motor hızının aşılmasına sebep olmaz."], correct: 0 },
+                { type: "question", number: 34, question: "Elektriksel bağlayıcıları anten birleştiricisinden ayırın.", options: ["Separate the antenna coupler from the electrical connectors.", "Disconnect the electrical connectors from the antenna coupler.", "Electrical connectors are disconnected from the antenna coupler.", "Electrical connectors and the antenna coupler are separated."], correct: 1 },
+                { type: "question", number: 35, question: "Bu test boyunca uçak, açık alanda olmalıdır.", options: ["During this test, the aircraft must be in an open area.", "An open area is needed for this test.", "During the test, keep the aircraft in an open area.", "During this test, there must be an open area for the aircraft."], correct: 0 },
+                { type: "question", number: 36, question: "Eğer transceiver fan çalışmazsa, veri aktarımını derhal kapatın.", options: ["If the transceiver fan doesn't operate, close the transmission.", "If the transmission stops, do not operate the transceiver fan.", "Stop the transmission if the transceiver does not work immediately.", "If the transceiver fan does not operate, stop the transmission immediately."], correct: 3 },
+                { type: "question", number: 37, question: "Tek bir motorda sadece aynı tip konektör kullanın.", options: ["Use only one connector on the same type of engine.", "Use the same connector on one engine.", "Use only the same type of connectors on one engine.", "The same type of connectors may be used on one engine."], correct: 2 },
+                { type: "question", number: 38, question: "Tüm prosedürleri tekrar edin.", options: ["Use some of the procedures.", "Repeat all the procedures.", "Apply all the procedures.", "Control all the procedures"], correct: 1 },
+                { type: "question", number: 39, question: "Karşılık gelen koruma hortumunu kaydırın.", options: ["Change the hose if there is a problem.", "Take the corresponding hose out.", "Place the corresponding hose into the hole.", "Slide corresponding protection hose."], correct: 3 },
+                { type: "question", number: 40, question: "Dönüşümden sonra ateşleme kontrolünü de içeren testi uygulayın.", options: ["After conversion carry out the test including check of ignition.", "Check ignition conversion and carry out the test.", "Before the test check the ignition system.", "While applying test, check the ignition system."], correct: 0 },
+
+                // PART IV
+                { type: "heading", content: "PART IV: READING" },
+                { type: "text", content: "Read the paragraphs and choose the best answer:" },
+                { type: "text", content: "If pairs of fan blades are not available as spare for replacement, you can replace one blade individually, when the difference between the moment weight of the blade **removed** and its opposite is not more than 800 cm.g (315 in.g). However, you must do the inspections and corrections given in the replacement procedure with the conditions of the referenced procedure, thus, to make sure the engine vibration is not more than the limits. **This** also optimizes the operation of the engine." },
+                { type: "question", number: 41, question: "According to the passage what happens when the difference is not more than 800 cm?", options: ["You can change blades one by one.", "You can replace fans one by one.", "You can cut one blade individually.", "You can change individual pair of fan blades."], correct: 0 },
+                { type: "question", number: 42, question: "In the passage the word **\"removed\"** means ______.", options: ["located", "set out", "taken out", "assigned"], correct: 2 },
+                { type: "question", number: 43, question: "In the passage the word **\"This\"** refers to ______.", options: ["Engine Vibration", "Availability", "Inspection and Correction", "Optimization"], correct: 2 },
+                { type: "question", number: 44, question: "According to the passage in which condition can you change a blade by itself?", options: ["If a blade is loose.", "If two of the blades are not ready.", "If the fan is loose.", "If two of the fans are not available."], correct: 3 },
+
+                { type: "text", content: "The preservation procedures in this section are recommended as a guide to determine what precautions must be applied to give the engine sufficient protection from the elements during periods of storage and inactivity. Engine preservation is **a flexible program** that should be implemented in such a manner as to conform with particular weather and storage conditions. You must pay more attention to the preservation program for inactive engines exposed to high humidity and/or large temperature changes, especially if they are near a salt water area. These definitely require more attention to preservation needs than those in inactive engines stored in drier climates or less severe weather conditions." },
+                { type: "question", number: 45, question: "The text mainly talks about ______.", options: ["how a flexible engine program is", "engine preservation issues", "humidity problems", "temperature problems"], correct: 1 },
+                { type: "question", number: 46, question: "It can be inferred from the passage that ______.", options: ["to maintain the engine health there should be certain conditions", "high humidity can benefit to the some parts of the engine", "fixed weather and storage conditions are not recommended for the engine", "preservation procedures are not implemented into engine maintenance"], correct: 0 },
+                { type: "question", number: 47, question: "In the passage **\"a flexible program\"** may mean that ______.", options: ["a program provides different options", "one cannot choose from different options", "a system explains different part of the engine", "different system provides different program"], correct: 0 },
+                { type: "question", number: 48, question: "According to the passage, it can be inferred that compared to active ones inactive engines ______.", options: ["are not needed to be stored in severe weather conditions", "can be easily stored if they are stored in severe conditions", "may need less attention due to weather conditions", "should be carefully stored to protect its maintenance"], correct: 3 },
+
+                { type: "text", content: "Corrosion of aviation equipment is caused by both natural and man-made environments. Natural conditions which affect the corrosion process are moisture, temperature, salt atmospheres, ozone, sand, dust, solar radiation, insects and birds, and microorganisms. Man-made conditions, which also affect the corrosion process, are industrial pollution, manufacturing operations, storage conditions, and shipment. By understanding these conditions, maintenance personnel will be better able to prevent aircraft damage. Generally, corrosion and other harmful processes (such as the degradation of non-metallic materials) increase as temperatures rise, but in some instances, moderate increases in temperature may serve to reduce corrosion by preventing condensation." },
+                { type: "question", number: 49, question: "According to the passage what causes corrosion of aviation equipment?", options: ["Natural environment", "Man-made environment", "Natural and man-made environments", "Industrial pollution"], correct: 2 },
+                { type: "question", number: 50, question: "What is the importance of understanding the conditions which are given in the paragraph for a maintenance worker?", options: ["People fly safely", "Workers can earn more money", "Workers will be better able to prevent aircraft damage", "They can improve themselves"], correct: 2 },
+                { type: "question", number: 51, question: "How does the moderate increase in temperature effect the corrosion?", options: ["It increases the corrosion", "It reduces the corrosion", "It doesn't have any effect", "It damages the material"], correct: 1 },
+
+                { type: "text", content: "Do not allow these peroxide-based strippers to come in contact directly with unpainted steel alloys. A thin layer of these paint strippers can cause corrosion. In using these strippers, expose paint chips and spent strippers to a fine spray of soap during clean-up after stripping, or rinse paint chips with water to remove paint stripper prior to packaging in vented containers before disposal. Dispense the stripper through plastic or stainless steel equipment. Collecting wastes in rusty drums, mixing conversion coating rise water with stripper residues, or throwing rags, gloves, or other fabrics into the waste drum may cause combustion. Used material contaminated with paint flakes and organic materials may undergo spontaneous pressurization. The paint stripper produces water and oxygen during the paint removal process. This process will continue after the stripper is removed from the aircraft. To prevent pressure from building up in waste containers, do not cap containers for 24 hours after collecting the stripper residue and paint chips. Not for use on high-strength steel or magnesium parts. Make sure that all high-strength steel and magnesium parts are masked. Acid strippers are not compatible with high-strength steel and magnesium. The maximum cumulative dwell time is 10 hours. Only one reapplication of restricted use striper is allowed on clad fuselage surfaces. Acid strippers are not allowed on in spar wing surfaces. Acid strippers will discolor clad aluminum." },
+                { type: "question", number: 52, question: "It is stated in the passage that ______.", options: ["the paint stripper creates water and oxygen during the paint removal process", "the paint stripper produces nothing during the removal process", "during the removal process there can be an explosion", "the paint stripper cannot be used on a thin layer"], correct: 0 },
+                { type: "question", number: 53, question: "According to the passage how many day/s do we need to cap container after collecting the stripper?", options: ["Four days", "Two days", "Three days", "One day"], correct: 3 }, // 24 saat = 1 gün
+                { type: "question", number: 54, question: "According to the passage the acid stripper can be used with magnesium parts if ______.", options: ["the parts are thin", "the parts are masked", "the parts are thick", "the parts are colourful"], correct: 1 },
+                { type: "question", number: 55, question: "It is stated in the passage that acid strippers ______.", options: ["discolour clad aluminium", "make aluminium powerful", "burn the aluminium parts", "make the aluminium parts thinner"], correct: 0 },
+
+                // PART V
+                { type: "heading", content: "PART V: CLOZE" },
+                { type: "text", content: "Choose the best alternative to complete the sentences below:" },
+                { type: "text", content: "Inspect magneto inner side for any foreign particles and the taper surface. Under normal circumstances it is not necessary **(56)** ______ the flywhell apart. Check Woodruff key in crankshaft for tight fit and degrease taper of crankshaft and flywheel hub. Apply LOCTITE 221 sparingly, but well spread into the taper of magneto hub. **(57)** ______ flywheel hub ass'y, washer 17/36/5, lock washer and hex. Screw M16x1,5x40 and tighten to 120 Nm. Make sure that the Woodruf key **(58)** ______ in the keyway. A loose or a loss of Woodruf key can create failures **(59)** ______ no-starting or advanced ignition timing." },
+                { type: "question", number: 56, question: "56. ______", options: ["take", "to take", "taking", "takes"], correct: 1 }, // to take
+                { type: "question", number: 57, question: "57. ______", options: ["Fitting", "To fit", "Fit", "Fits"], correct: 2 }, // Fit (imperative)
+                { type: "question", number: 58, question: "58. ______", options: ["remains", "keeps", "closes", "stays"], correct: 0 }, // remains
+                { type: "question", number: 59, question: "59. ______", options: ["includes", "which is included", "included", "including"], correct: 3 }, // including
+
+                { type: "text", content: "At the installation of the stator ensure proper grounding of the grounding cables via the screw head/thread to the ignition housing. Also ensure proper contact of the fixation screw to the ignition housing, **(60)** ______ by careful examination and cleaning of all contact surfaces. Failures to do so may result **(61)** ______ engine failures or stoppage. At replacement **(62)** ______ re-installation of the stator take care for correct routing of cable assembly and not to damage the stator." },
+                { type: "question", number: 60, question: "60. ______", options: ["is achieved", "achieving", "which is achieving", "which is achieved"], correct: 3 }, // which is achieved
+                { type: "question", number: 61, question: "61. ______", options: ["in", "on", "of", "about"], correct: 0 }, // result in
+                { type: "question", number: 62, question: "62. ______", options: ["but", "or", "so", "because"], correct: 1 }, // or
+
+                { type: "text", content: "The DFCS system is a two-axis (pitch and roll) system **(63)** ______ operates the elevators and ailerons to designated locations and make automatic landings. Control functions are also translated **(64)** ______ flight director commands for display on the pilots' electronic attitude director indicators (EADI's), thereby providing the pilots' flight attitude commands during manual operation or allowing the pilots **(65)** ______ autopilot operation. Automatic stabilizer trimming relieves sustained elevator loads which might be incurred **(66)** ______ fuel burnoff." },
+                { type: "question", number: 63, question: "63. ______", options: ["which", "where", "whose", "who"], correct: 0 }, // which
+                { type: "question", number: 64, question: "64. ______", options: ["from", "near", "into", "with"], correct: 2 }, // into
+                { type: "question", number: 65, question: "65. ______", options: ["being monitored", "monitored", "to be monitored", "to monitor"], correct: 3 }, // to monitor
+                { type: "question", number: 66, question: "66. ______", options: ["despite", "due to", "because", "therefore"], correct: 1 }, // due to
+
+                { type: "text", content: "The flight control computers **(67)** ______ analog and digital input signals which **(68)**______ to provide guidance commands for the autopilot and flight director systems. **(69)** ______ autopilot A or autopilot B can be engaged for autopilot control of the airplane to pilot selected guidance commands on the mode control panel. Both autopilot channels **(70)**______ simultaneously to accomplish automatic approaches. Control wheel steering (CWS) is used for manual control of the airplane through the autopilot system." },
+                { type: "question", number: 67, question: "67. ______", options: ["use", "uses", "using", "used"], correct: 0 }, // use
+                { type: "question", number: 68, question: "68. ______", options: ["are processed", "have been processed", "had processed", "are being processed"], correct: 0 }, // are processed
+                { type: "question", number: 69, question: "69. ______", options: ["Neither", "Not only", "Either", "But also"], correct: 2 }, // Either
+                { type: "question", number: 70, question: "70. ______", options: ["must engage", "shall be engaged", "would engage", "may be engaged"], correct: 3 }, // may be engaged
+
+                // PART VI
+                { type: "heading", content: "PART VI: SENTENCE COMPLETION" },
+                { type: "text", content: "Choose the best alternative to complete the sentences." },
+                { type: "question", number: 71, question: "You can connect the plug connectors ______.", options: ["into its main circuit", "to the throttle control unit", "by releasing it beforehand", "without bending it during the process"], correct: 1 },
+                { type: "question", number: 72, question: "Start the engine by the normal engine automatic start procedure ______.", options: ["and let it become stable", "or they will be damaged", "as their procedure is different", "so that you can alter it"], correct: 0 },
+                { type: "question", number: 73, question: "Make sure that the warning message appears ______.", options: ["whenever there was a problem with the temperature", "on the other warning message", "when the thrust control levers are in the correct position", "but the derated take off level was not set at take off"], correct: 2 },
+                { type: "question", number: 74, question: "______ you must adjust the Artificial Feel Unit.", options: ["The unit might not work properly", "In order for them to be safe", "Although it can be done differently", "If the resistance value is not correct"], correct: 3 },
+                { type: "question", number: 75, question: "If the resistance values are in the specified limits, ______.", options: ["make sure that the master control switch is set to OFF position", "taking General Service Harness from the FMU to pylon disconnect panel", "you should put it back to its initial configuration", "try reconnecting it to the General Service Harness connections"], correct: 2 },
+                { type: "question", number: 76, question: "Do a check and repair the wiring ______.", options: ["between the MCU and the related Power Wall Disconnect-Box", "the aircraft from the relay base", "the indication panel shows", "find the related cables"], correct: 0 },
+                { type: "question", number: 77, question: "Adjust the lumbar rest in the vertical and horizontal directions ______.", options: ["open the Circuit Breakers of the Air Chiller Unit", "with the two knobs, located on the pedestal side of the backrest", "electrical connectors on the air chiller unit", "during the initial 30 seconds of chiller operation, the run and the fault lamps flashes both"], correct: 1 },
+                { type: "question", number: 78, question: "The ON lamp of the PED switch ______.", options: ["check the trolley grills for blockage", "air valves in the galley trolley compartment", "in the cabin does not come on", "clean the related filter"], correct: 2 },
+                { type: "question", number: 79, question: "If the circuit breaker stays closed, ______.", options: ["there would be no holes or leaks in the air ducts from the galley to the air chiller unit", "connect the disconnected LRUs one at a time", "there were no unwanted objects in the air duct", "Espresso-Maker could not have operated"], correct: 1 },
+                { type: "question", number: 80, question: "The Power supply is not available ______.", options: ["the bun warmer does not operate during the test", "if the hot cup did not operate during the test", "if necessary repair the related circuit breaker at the galley", "when the flaps lever is set to the zero flaps position"], correct: 3 }
+            ];
+
+            const container = document.getElementById('quiz-container');
+            let html = '';
+
+            items.forEach(item => {
+                if (item.type === 'heading') {
+                    html += `<h2>${item.content}</h2>`;
+                } else if (item.type === 'text') {
+                    html += `<div class="reading-text">${item.content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}</div>`;
+                } else if (item.type === 'question') {
+                    html += `<div class="question-block" id="q-${item.number}">`;
+                    html += `<div class="question-number">Soru ${item.number}</div>`;
+                    html += `<div class="question-text">${item.question}</div>`;
+                    html += `<ul class="options">`;
+                    item.options.forEach((opt, idx) => {
+                        html += `<li><input type="radio" name="q${item.number}" value="${idx}" data-q="${item.number}" data-correct="${item.correct}"> ${opt}</li>`;
+                    });
+                    html += `</ul>`;
+                    html += `<div class="feedback" id="fb-${item.number}"></div>`;
+                    html += `</div>`;
+                }
+            });
+
+            container.innerHTML = html;
+
+            // Tüm radyo butonlarına olay dinleyicisi ekle
+            document.querySelectorAll('input[type=radio]').forEach(radio => {
+                radio.addEventListener('change', function(e) {
+                    const qNum = this.getAttribute('data-q');
+                    const selectedVal = parseInt(this.value);
+                    const correctVal = parseInt(this.getAttribute('data-correct'));
+                    const feedbackDiv = document.getElementById(`fb-${qNum}`);
+                    
+                    if (selectedVal === correctVal) {
+                        feedbackDiv.textContent = '✅ Doğru!';
+                        feedbackDiv.className = 'feedback correct-feedback';
+                    } else {
+                        // Hangi şıkkın doğru olduğunu da gösterelim
+                        const correctOption = this.closest('.question-block').querySelectorAll('li')[correctVal].innerText;
+                        feedbackDiv.textContent = `❌ Yanlış. Doğru şık: ${correctOption}`;
+                        feedbackDiv.className = 'feedback wrong-feedback';
+                    }
+                    feedbackDiv.style.display = 'block';
+                });
+            });
+        })();
+    </script>
+</body>
+</html>
